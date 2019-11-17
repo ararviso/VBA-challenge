@@ -1,0 +1,136 @@
+Sub Multiple_year_stock_data()
+
+    ' Set dimensions
+    Dim ticker As String
+    Dim Ticker_Name As Double
+    Dim LastRow As Long
+    Dim Volume_total As Double
+    Dim i As Long
+    Dim change As Double
+    Dim j As Integer
+    Dim start As Long
+    Dim rowCount As Long
+    Dim percentChange As Double
+    Dim days As Integer
+    Dim dailyChange As Double
+    Dim averageChange As Double
+    Dim ws As Worksheet
+
+    For Each ws In Worksheets
+   
+        ' Set values for worksheets
+        j = 0
+        Volume_total = 0
+        change = 0
+        start = 2
+        dailyChange = 0
+        
+        ' Set up Column title
+        ws.Range("I1").Value = "Ticker"
+        ws.Range("J1").Value = "Yearly Change"
+        ws.Range("K1").Value = "Percent Change"
+        ws.Range("L1").Value = "Total Stock Volume"
+        
+        ' Set up condition for Ticker 'A'
+        
+        TickerA = Cells(Rows.Count, "A").End(xlUp).Row
+    
+        For i = 2 To TickerA
+        
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+                Total = Total + ws.Cells(i, 7).Value
+            
+            
+                If Total = 0 Then
+                    ws.Range("I" & 2 + j).Value = Cells(i, 1).Value
+                    ws.Range("J" & 2 + j).Value = 0
+                    ws.Range("K" & 2 + j).Value = "%" & 0
+                    ws.Range("L" & 2 + j).Value = 0
+            
+                Else
+                
+                    'Setting peremiter of where to start and end the ticker open/close
+                    If ws.Cells(start, 3) = 0 Then
+                        For find_value = start To i
+                            If ws.Cells(find_value, 3).Value <> 0 Then
+                                start = find_value
+                                Exit For
+            
+                            End If
+                        Next find_value
+                    End If
+                                    
+                    'Calculate difference/change
+                    change = (ws.Cells(i, 6) - ws.Cells(start, 3))
+                    ws.Range("K" & 2 + j).NumberFormat = "0.00%"
+                    
+    
+                    'Start of next ticker
+    
+                    start = i + 1
+        
+                    'Inputing values in Columns I,J,K,L
+                    ws.Range("I" & 2 + j).Value = ws.Cells(i, 1).Value
+                    ws.Range("J" & 2 + j).Value = Round(change, 2)
+                    ws.Range("K" & 2 + j).Value = "%" & percentChange
+                    ws.Range("L" & 2 + j).Value = Total
+        
+        
+                    'Set up next set of columns
+                    ws.Range("O2").Value = "Greatest % Increase"
+                    ws.Range("O3").Value = "Greatest % Decrease"
+                    ws.Range("O4").Value = "Greatest Total Volume"
+                    ws.Range("P1").Value = "Ticker"
+                    ws.Range("Q1").Value = "Value"
+
+                    'Assign colors based on change
+                    If ws.Range("J" & 2 + j).Value >= 0 Then
+                        ws.Range("J" & 2 + j).Interior.ColorIndex = 4
+                    Else
+                        ws.Range("J" & 2 + j).Interior.ColorIndex = 3
+                    End If
+                    
+                
+                End If
+          
+                'Reset variables for new ticker
+                j = j + 1
+                Volume_total = 0
+                change = 0
+                days = 0
+                dailyChange = 0
+        
+            'If ticker is still the same add volume
+            Else
+            Total = Total + ws.Cells(i, 7).Value
+                
+            End If
+                   
+        Next i
+    
+            ' Greatest % Increase, Greatest % Decrease and Greatest Total Volume
+            LastRow = ws.Cells(Rows.Count, 11).End(xlUp).Row
+         
+            For i = 2 To LastRow
+
+                If ws.Range("K" & i).Value > ws.Range("Q2").Value Then
+                    ws.Range("Q2").Value = ws.Range("K" & i).Value
+                    ws.Range("P2").Value = ws.Range("I" & i).Value
+                End If
+
+                If ws.Range("K" & i).Value < ws.Range("Q3").Value Then
+                    ws.Range("Q3").Value = ws.Range("K" & i).Value
+                    ws.Range("P3").Value = ws.Range("I" & i).Value
+                End If
+
+                If ws.Range("L" & i).Value > ws.Range("Q4").Value Then
+                    ws.Range("Q4").Value = ws.Range("L" & i).Value
+                    ws.Range("P4").Value = ws.Range("I" & i).Value
+                End If
+
+        Next i
+
+    Next ws
+    
+End Sub
+
